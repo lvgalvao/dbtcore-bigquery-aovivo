@@ -1,20 +1,20 @@
-with
+WITH
 
-source as (
+SOURCE AS (
 
-    select * from {{ source('ecom', 'raw_stores') }}
+    SELECT * FROM {{ source('ecom', 'raw_stores') }}
 
 ),
 
-renamed as (
+RENAMED AS (
 
-    select
+    SELECT
 
         ----------  ids
-        id as location_id,
+        ID AS LOCATION_ID,
 
         ---------- text
-        name as location_name,
+        NAME AS LOCATION_NAME,
 
 
 
@@ -22,14 +22,14 @@ renamed as (
 
 
         ---------- numerics
-        tax_rate,
+        TAX_RATE,
 
         ---------- timestamps
         -- Substituição manual do dbt.date_trunc
-        DATE_TRUNC(opened_at, day) as opened_date
+        DATE_TRUNC(OPENED_AT, DAY) AS OPENED_DATE
 
-    from source
+    FROM SOURCE
 
 )
 
-select * from renamed
+SELECT * FROM RENAMED

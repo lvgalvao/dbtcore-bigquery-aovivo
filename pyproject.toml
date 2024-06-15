@@ -10,6 +10,7 @@ python = "3.12.1"
 dbt-core = "^1.8.2"
 dbt-bigquery = "^1.8.1"
 sqlfluff-templater-dbt = "^3.0.7"
+taskipy = "^1.12.2"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -19,3 +20,6 @@ sqlfluff = "^3.0.7"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.taskipy.tasks]
+fix = "sqlfluff fix snapshots && sqlfluff fix models"

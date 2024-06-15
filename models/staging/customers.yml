@@ -1,0 +1,106 @@
+models:
+  - name: customers
+    description: Data mart de visão geral do cliente, oferecendo detalhes chave para cada cliente único. Uma linha por cliente.
+    data_tests:
+      - dbt_utils.expression_is_true:
+          expression: "lifetime_spend_pretax + lifetime_tax_paid = lifetime_spend"
+    columns:
+      - name: customer_id
+        description: A chave única do mart de pedidos.
+        data_tests:
+          - not_null
+          - unique
+      - name: customer_name
+        description: Nome completo dos clientes.
+      - name: count_lifetime_orders
+        description: Número total de pedidos que um cliente já fez.
+      - name: first_ordered_at
+        description: O timestamp de quando um cliente fez seu primeiro pedido.
+      - name: last_ordered_at
+        description: O timestamp do pedido mais recente de um cliente.
+      - name: lifetime_spend_pretax
+        description: A soma de todos os subtotais antes dos impostos de cada pedido feito por um cliente.
+      - name: lifetime_tax_paid
+        description: A soma de todas as partes de imposto de cada pedido feito por um cliente.
+      - name: lifetime_spend
+        description: A soma de todos os totais de pedidos (incluindo impostos) que um cliente já fez.
+      - name: customer_type
+        description: As opções são 'new' (novo) ou 'returning' (retornando), indicando se um cliente fez mais de um pedido ou apenas seu primeiro pedido até o momento.
+        data_tests:
+          - accepted_values:
+              values: ["new", "returning"]
+
+semantic_models:
+  - name: customers
+    defaults:
+      agg_time_dimension: first_ordered_at
+    description: |
+      Mart de grão de cliente.
+    model: ref('customers')
+    entities:
+      - name: customer
+        expr: customer_id
+        type: primary
+    dimensions:
+      - name: customer_name
+        type: categorical
+      - name: customer_type
+        type: categorical
+      - name: first_ordered_at
+        type: time
+        type_params:
+          time_granularity: day
+      - name: last_ordered_at
+        type: time
+        type_params:
+          time_granularity: day
+    measures:
+      - name: customers
+        description: Contagem de clientes únicos
+        agg: count_distinct
+      - name: count_lifetime_orders
+        description: Contagem total de pedidos por cliente.
+        agg: sum
+      - name: lifetime_spend_pretax
+        description: Gasto vitalício do cliente antes dos impostos.
+        agg: sum
+      - name: lifetime_spend
+        agg: sum
+        description: Gasto vitalício bruto do cliente, incluindo impostos.
+
+    measures:
+      - name: customers
+        description: Count of unique customers
+        agg: count_distinct
+      - name: count_lifetime_orders
+        description: Total count of orders per customer.
+        agg: sum
+      - name: lifetime_spend_pretax
+        description: Customer lifetime spend before taxes.
+        agg: sum
+      - name: lifetime_spend
+        agg: sum
+        description: Gross customer lifetime spend inclusive of taxes.
+
+metrics:
+  - name: lifetime_spend_pretax
+    description: Gasto vitalício do cliente antes dos impostos
+    label: LTV Pre-tax
+    type: simple
+    type_params:
+      measure: lifetime_spend_pretax
+  - name: count_lifetime_orders
+    description: Contagem de pedidos vitalícios
+    label: Count Lifetime Orders
+    type: simple
+    type_params:
+      measure: count_lifetime_orders
+  - name: average_order_value
+    description: Gasto vitalício antes dos impostos / número de pedidos
+    label: Average Order Value
+    type: derived
+    type_params:
+      metrics:
+        - count_lifetime_orders
+        - lifetime_spend_pretax
+      expr: lifetime_spend_pretax / count_lifetime_orders

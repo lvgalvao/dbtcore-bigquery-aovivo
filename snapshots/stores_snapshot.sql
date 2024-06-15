@@ -9,6 +9,6 @@
         )
     }}
 
-    select * from {{ ref('stg_locations') }}
+    SELECT * FROM {{ ref('stg_locations') }}
 
 {% endsnapshot %}

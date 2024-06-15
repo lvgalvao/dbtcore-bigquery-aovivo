@@ -1,0 +1,14 @@
+unit_tests:
+  - name: test_customer_order_totals
+    description: "Test that the total_spent for each customer is calculated correctly."
+    model: customer_order_totals
+    given:
+      - input: ref('stg_orders')
+        rows:
+          - { order_id: 1, customer_id: 'A', order_total: 100.0 }
+          - { order_id: 2, customer_id: 'B', order_total: 150.0 }
+          - { order_id: 3, customer_id: 'A', order_total: 50.0 }
+    expect:
+      rows:
+        - { customer_id: 'A', total_spent: 150.0 }
+        - { customer_id: 'B', total_spent: 150.0 }

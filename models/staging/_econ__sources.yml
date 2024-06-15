@@ -19,8 +19,6 @@ sources:
       - name: raw_orders_2024
         description: Um registro por pedido (consistindo em um ou mais itens do pedido)
         loaded_at_field: ordered_at
-      - name: raw_items
-        description: Itens incluídos em um pedido
       - name: raw_stores
         description: Registro de cada loja com a data de abertura
       - name: raw_products
